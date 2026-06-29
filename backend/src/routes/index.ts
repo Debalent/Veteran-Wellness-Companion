@@ -8,6 +8,11 @@
 import { Router } from 'express';
 import authRoutes from './auth.routes.js';
 import checkinRoutes from './checkins.routes.js';
+import goalRoutes from './goals.routes.js';
+import reminderRoutes from './reminders.routes.js';
+import safetyPlanRoutes from './safetyPlans.routes.js';
+import educationRoutes from './education.routes.js';
+import resourceRoutes from './resources.routes.js';
 
 const router = Router();
 
@@ -18,5 +23,10 @@ const router = Router();
  */
 router.use('/auth', authRoutes);
 router.use('/checkins', checkinRoutes);
+router.use('/goals', goalRoutes);
+router.use('/reminders', reminderRoutes);
+router.use('/safety-plans', safetyPlanRoutes);
+router.use('/education', educationRoutes);
+router.use('/resources', resourceRoutes);
 
 export default router;
