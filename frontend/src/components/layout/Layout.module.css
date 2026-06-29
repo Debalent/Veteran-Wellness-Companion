@@ -1,0 +1,49 @@
+/* =============================================================================
+   Layout Styles
+   =============================================================================
+   Shell layout with sidebar, header, and content area.
+   Crisis button is fixed at the bottom right.
+   ============================================================================= */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.container {
+  display: flex;
+  flex: 1;
+}
+
+.content {
+  flex: 1;
+  padding: var(--space-lg);
+  overflow-y: auto;
+}
+
+/* Crisis button — always visible */
+.crisis-button-container {
+  position: fixed;
+  bottom: var(--space-lg);
+  right: var(--space-lg);
+  z-index: 1000;
+}
+
+.crisis-button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background-color: var(--color-danger);
+  color: white;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  transition: background-color var(--transition-base);
+}
+
+.crisis-button:hover {
+  background-color: #a02525;
+}
