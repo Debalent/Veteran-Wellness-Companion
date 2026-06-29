@@ -1,0 +1,307 @@
+// =============================================================================
+// Veteran Wellness Companion Platform — Prisma Schema
+// =============================================================================
+// This schema defines the database models for the entire platform.
+// Each model is documented with its purpose and mission alignment.
+//
+// Data Principles:
+// - No PII is stored in logs or analytics tables
+// - All user data is linked by userId, never by personal identifiers
+// - Consent is tracked for any data use beyond core app functionality
+// - Crisis/safety data is treated with the highest privacy protection
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// USER — The central entity of the platform
+// =============================================================================
+// Every veteran, family member, or clinician has a user record.
+// We store only what's needed for authentication and personalization.
+// Personal identifiers (name, email) are stored with minimal retention.
+// =============================================================================
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String
+  displayName   String?
+  role          Role     @default(VETERAN)
+  consentedAt   DateTime?  // When the user consented to admin dashboard data use. NULL = no consent.
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations to all user-owned data
+  checkins        WellnessCheckin[]
+  goals           Goal[]
+  reminders       Reminder[]
+  safetyPlans     SafetyPlan[]
+  completedLessons CompletedLesson[]
+  progressLogs    ProgressLog[]
+}
+
+enum Role {
+  VETERAN
+  FAMILY_MEMBER
+  CLINICIAN
+  ADMIN
+}
+
+// =============================================================================
+// WELLNESS CHECK-IN — Core self-monitoring feature
+// =============================================================================
+// Veterans record their daily mood, sleep, and stress levels.
+// This data is used for personal trend viewing ONLY.
+// Never used for diagnosis, risk scoring, or prediction.
+// =============================================================================
+model WellnessCheckin {
+  id          String   @id @default(uuid())
+  userId      String
+  mood        Int      // 1-10 scale: 1=Very Low, 10=Very High
+  sleepHours  Float?   // Hours of sleep logged
+  stressLevel Int?     // 1-10 scale: 1=No Stress, 10=Extreme Stress
+  notes       String?  // Optional free-text journal entry
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@map("wellness_checkins")
+}
+
+// =============================================================================
+// GOAL — Wellness goal setting and habit tracking
+// =============================================================================
+// Veterans set goals across multiple wellness dimensions.
+// Goals can have associated habits for daily/weekly tracking.
+// Progress is self-reported on a 0-100 scale.
+// =============================================================================
+model Goal {
+  id         String       @id @default(uuid())
+  userId     String
+  title      String
+  description String?
+  category   GoalCategory
+  targetDate DateTime?
+  progress   Int          @default(0)  // 0-100 self-reported progress
+  isActive   Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id])
+  habits Habit[]
+
+  @@index([userId, isActive])
+  @@map("goals")
+}
+
+enum GoalCategory {
+  NUTRITION
+  SLEEP
+  EXERCISE
+  FINANCIAL
+  SOCIAL
+  MINDFULNESS
+  STRESS_MANAGEMENT
+  GENERAL_WELLNESS
+}
+
+// =============================================================================
+// HABIT — Individual habit within a goal
+// =============================================================================
+// Specific, measurable actions that contribute to a larger goal.
+// Streaks track consistency and provide positive reinforcement.
+// =============================================================================
+model Habit {
+  id        String    @id @default(uuid())
+  goalId    String
+  name      String
+  frequency Frequency
+  streak    Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  goal Goal @relation(fields: [goalId], references: [id])
+
+  @@map("habits")
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+// =============================================================================
+// PROGRESS LOG — Tracks habit completion over time
+// =============================================================================
+// A simple log of when a habit was completed.
+// Used to calculate streaks and show progress over time.
+// =============================================================================
+model ProgressLog {
+  id        String   @id @default(uuid())
+  userId    String
+  habitId   String?
+  date      DateTime
+  completed Boolean  @default(true)
+  notes     String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, date])
+  @@map("progress_logs")
+}
+
+// =============================================================================
+// REMINDER — Appointment, medication, and wellness reminders
+// =============================================================================
+// Veterans can set reminders for VA appointments, medications,
+// and wellness activities. Reminders are checked by a scheduled
+// notification service and sent via the configured channel.
+// =============================================================================
+model Reminder {
+  id          String       @id @default(uuid())
+  userId      String
+  title       String
+  description String?
+  type        ReminderType
+  scheduledAt DateTime
+  repeat      RepeatType?  // How often to repeat (null = one-time)
+  isSent      Boolean      @default(false)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, scheduledAt])
+  @@map("reminders")
+}
+
+enum ReminderType {
+  APPOINTMENT
+  MEDICATION
+  WELLNESS_CHECKIN
+  GOAL_CHECKIN
+  GENERAL
+}
+
+enum RepeatType {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+// =============================================================================
+// SAFETY PLAN — Personalized crisis safety planning tool
+// =============================================================================
+// Based on the VA Safety Plan framework. Veterans create a personalized
+// plan with warning signs, coping strategies, and support contacts.
+// This is a self-directed tool, not a clinical assessment.
+// Crisis line access is always available from this screen.
+// =============================================================================
+model SafetyPlan {
+  id                  String   @id @default(uuid())
+  userId              String
+  warningSigns        String[]  // Personal warning signs of crisis
+  copingStrategies    String[]  // Healthy coping strategies
+  supportContacts     String[]  // Trusted people to contact
+  professionalContact String?   // Therapist, VA provider contact
+  crisisLineConsent   Boolean  @default(true)  // Shows crisis line prominently
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("safety_plans")
+}
+
+// =============================================================================
+// EDUCATION LESSON — Stress and resilience education content
+// =============================================================================
+// Evidence-based educational content on stress management,
+// resilience building, and coping strategies. Content is
+// grounded in VA best practices and clinical research.
+// =============================================================================
+model EducationLesson {
+  id          String   @id @default(uuid())
+  title       String
+  summary     String
+  content     String   // HTML/Markdown content body
+  category    LessonCategory
+  duration    Int?     // Estimated reading time in minutes
+  orderIndex  Int      // Display order in the library
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  completedBy CompletedLesson[]
+
+  @@map("education_lessons")
+}
+
+enum LessonCategory {
+  STRESS_MANAGEMENT
+  RESILIENCE_BUILDING
+  COPING_STRATEGIES
+  MINDFULNESS
+  SLEEP_HYGIENE
+  COMMUNICATION
+  TRANSITION_SUPPORT
+}
+
+// =============================================================================
+// COMPLETED LESSON — Tracks which lessons a user has completed
+// =============================================================================
+model CompletedLesson {
+  id        String   @id @default(uuid())
+  userId    String
+  lessonId  String
+  completedAt DateTime @default(now())
+
+  user   User            @relation(fields: [userId], references: [id])
+  lesson EducationLesson @relation(fields: [lessonId], references: [id])
+
+  @@unique([userId, lessonId])
+  @@map("completed_lessons")
+}
+
+// =============================================================================
+// WELLNESS RESOURCE — Curated wellness content library
+// =============================================================================
+// Resources covering nutrition, sleep hygiene, exercise guidance,
+// financial wellness, and other wellness dimensions.
+// All resources are reviewed for clinical accuracy.
+// =============================================================================
+model WellnessResource {
+  id          String          @id @default(uuid())
+  title       String
+  description String
+  category    ResourceCategory
+  url         String?
+  content     String?         // Inline content (if not external URL)
+  isPublished Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@map("wellness_resources")
+}
+
+enum ResourceCategory {
+  NUTRITION
+  SLEEP
+  EXERCISE
+  FINANCIAL_WELLNESS
+  SOCIAL_CONNECTION
+  MINDFULNESS
+  CRISIS_SUPPORT
+  VA_BENEFITS
+}
