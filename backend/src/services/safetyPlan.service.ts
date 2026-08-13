@@ -44,7 +44,7 @@ export async function upsertSafetyPlan(
       },
     });
 
-    logger.info('Safety plan updated', { userId, planId: updated.id });
+    logger.info('Safety plan updated', {\n    userId,\n    planId: updated.id,\n    eventType: 'SAFETY_PLAN_WRITE',\n    action: 'UPDATE',\n    result: 'success',\n    resourceType: 'SafetyPlan',\n  });
     return updated;
   }
 
@@ -60,7 +60,7 @@ export async function upsertSafetyPlan(
     },
   });
 
-  logger.info('Safety plan created', { userId, planId: plan.id });
+  logger.info('Safety plan created', {\n    userId,\n    planId: plan.id,\n    eventType: 'SAFETY_PLAN_WRITE',\n    action: 'CREATE',\n    result: 'success',\n    resourceType: 'SafetyPlan',\n  });
   return plan;
 }
 
@@ -92,6 +92,6 @@ export async function deactivateSafetyPlan(userId: string) {
     data: { isActive: false },
   });
 
-  logger.info('Safety plan deactivated', { userId, planId: plan.id });
+  logger.info('Safety plan deactivated', {\n    userId,\n    planId: plan.id,\n    eventType: 'SAFETY_PLAN_WRITE',\n    action: 'DEACTIVATE',\n    result: 'success',\n    resourceType: 'SafetyPlan',\n  });
   return updated;
 }

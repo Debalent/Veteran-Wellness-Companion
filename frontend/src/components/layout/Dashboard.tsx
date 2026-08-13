@@ -7,7 +7,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@store/authStore';
-import type { WellnessSummary } from '@types/checkin';
+import type { WellnessSummary } from '@/types/checkin';
 
 export default function Dashboard() {
   const user = useAuthStore((state) => state.user);

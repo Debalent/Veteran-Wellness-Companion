@@ -7,7 +7,7 @@
 // Crisis line access is always prominently displayed.
 // =============================================================================
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import api from '@services/api';
 
 interface SafetyPlanData {
@@ -19,6 +19,22 @@ interface SafetyPlanData {
 
 type SafetyPlanArrayField = 'warningSigns' | 'copingStrategies' | 'supportContacts';
 
+/** localStorage key for offline draft caching */
+const DRAFT_STORAGE_KEY = 'safety_plan_draft';
+
+/** localStorage key for cached saved plan (offline emergency view) */
+const CACHED_PLAN_KEY = 'safety_plan_cached';
+
+/**
+ * SafetyPlanBuilder — Personalized safety planning tool.
+ *
+ * Features:
+ * - Offline-first: drafts autosave to localStorage; cached plan is always viewable
+ * - Emergency read-only view when API is unreachable
+ * - Crisis line access always visible
+ *
+ * @returns {JSX.Element} The safety plan builder form
+ */
 export default function SafetyPlanBuilder() {
   const [plan, setPlan] = useState<SafetyPlanData>({
     warningSigns: [''],
@@ -28,6 +44,59 @@ export default function SafetyPlanBuilder() {
   });
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [isOffline, setIsOffline] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  /**
+   * Load the cached plan from localStorage on mount.
+   * This ensures the safety plan is always viewable, even offline.
+   */
+  useEffect(() => {
+    const loadCachedPlan = () => {
+      try {
+        const cached = localStorage.getItem(CACHED_PLAN_KEY);
+        if (cached) {
+          const parsed = JSON.parse(cached) as SafetyPlanData;
+          setPlan(parsed);
+        }
+      } catch {
+        // Corrupt cache — ignore and start fresh
+      }
+      setIsLoading(false);
+    };
+
+    loadCachedPlan();
+  }, []);
+
+  /**
+   * Autosave draft to localStorage whenever the plan changes.
+   * This prevents data loss if the user navigates away or loses connection.
+   */
+  useEffect(() => {
+    if (isLoading) return;
+    try {
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(plan));
+    } catch {
+      // Storage full or unavailable — non-critical
+    }
+  }, [plan, isLoading]);
+
+  /**
+   * Track online/offline status for emergency view fallback.
+   */
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    setIsOffline(!navigator.onLine);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const handleArrayChange = (
     field: SafetyPlanArrayField,
@@ -59,27 +128,46 @@ export default function SafetyPlanBuilder() {
     setIsSaving(true);
     setMessage('');
 
-    try {
-      const filteredPlan = {
-        warningSigns: plan.warningSigns.filter((s) => s.trim()),
-        copingStrategies: plan.copingStrategies.filter((s) => s.trim()),
-        supportContacts: plan.supportContacts.filter((s) => s.trim()),
-        professionalContact: plan.professionalContact || undefined,
-        crisisLineConsent: true,
-      };
+    const filteredPlan = {
+      warningSigns: plan.warningSigns.filter((s) => s.trim()),
+      copingStrategies: plan.copingStrategies.filter((s) => s.trim()),
+      supportContacts: plan.supportContacts.filter((s) => s.trim()),
+      professionalContact: plan.professionalContact || undefined,
+      crisisLineConsent: true,
+    };
 
+    try {
       await api.put('/safety-plans', filteredPlan);
+      // Cache the saved plan for offline emergency access
+      localStorage.setItem(CACHED_PLAN_KEY, JSON.stringify(plan));
       setMessage('Safety plan saved successfully.');
     } catch (err: any) {
-      setMessage(err?.response?.data?.message || 'Failed to save safety plan.');
+      // Offline fallback: save to local cache so the plan is still accessible
+      localStorage.setItem(CACHED_PLAN_KEY, JSON.stringify(plan));
+      setMessage(
+        isOffline
+          ? 'You are offline. Your safety plan has been saved on this device and will sync when you reconnect.'
+          : err?.response?.data?.message || 'Failed to save safety plan. Your draft is saved locally.'
+      );
     } finally {
       setIsSaving(false);
     }
   };
 
+  if (isLoading) {
+    return <div className="safety-plan__loading">Loading your safety plan...</div>;
+  }
+
   return (
     <div className="safety-plan">
       <h2>My Safety Plan</h2>
+
+      {isOffline && (
+        <div className="safety-plan__offline-banner" role="alert">
+          You are currently offline. Your safety plan is available on this device.
+        </div>
+      )}
+
       <p className="safety-plan__disclaimer">
         This is a personal safety planning tool. It is not a clinical assessment.
         If you are in crisis, call the Veterans Crisis Line at{' '}

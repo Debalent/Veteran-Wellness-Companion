@@ -42,7 +42,7 @@ export async function comparePassword(
  */
 export function generateToken(payload: { userId: string; role: string }): string {
   return jwt.sign(payload, jwtConfig.secret, {
-    expiresIn: jwtConfig.expiresIn,
+    expiresIn: jwtConfig.expiresIn as jwt.SignOptions['expiresIn'],
   });
 }
 

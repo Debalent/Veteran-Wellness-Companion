@@ -11,6 +11,13 @@ import AppShell from '@components/layout/AppShell';
 import LoginPage from '@components/auth/LoginForm';
 import RegisterPage from '@components/auth/RegisterForm';
 import Dashboard from '@components/layout/Dashboard';
+import MoodCheckinForm from '@components/checkins/MoodCheckinForm';
+import CheckinHistory from '@components/checkins/CheckinHistory';
+import GoalTracker from '@components/goals/GoalTracker';
+import SafetyPlanBuilder from '@components/safety-planning/SafetyPlanBuilder';
+import RemindersPage from '@components/reminders/RemindersPage';
+import EducationPage from '@components/education/EducationPage';
+import ResourcesPage from '@components/resources/ResourcesPage';
 
 /**
  * ProtectedRoute wrapper — redirects unauthenticated users to login.
@@ -47,12 +54,13 @@ export default function App() {
         }
       >
         <Route index element={<Dashboard />} />
-        <Route path="checkins" element={<div>Check-in History</div>} />
-        <Route path="goals" element={<div>Goals & Habits</div>} />
-        <Route path="safety-plan" element={<div>Safety Plan</div>} />
-        <Route path="reminders" element={<div>Reminders</div>} />
-        <Route path="education" element={<div>Education</div>} />
-        <Route path="resources" element={<div>Resources</div>} />
+        <Route path="checkins" element={<CheckinHistory />} />
+        <Route path="checkins/new" element={<MoodCheckinForm />} />
+        <Route path="goals" element={<GoalTracker />} />
+        <Route path="safety-plan" element={<SafetyPlanBuilder />} />
+        <Route path="reminders" element={<RemindersPage />} />
+        <Route path="education" element={<EducationPage />} />
+        <Route path="resources" element={<ResourcesPage />} />
       </Route>
     </Routes>
   );
