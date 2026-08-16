@@ -37,3 +37,14 @@ export async function deactivate(req: Request, res: Response, next: NextFunction
     next(error);
   }
 }
+
+export async function syncToVA(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userId = req.user!.userId;
+    const { vaPatientId } = req.body;
+    const result = await safetyPlanService.syncSafetyPlanToVA(userId, vaPatientId);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}

@@ -98,6 +98,14 @@ export const createSafetyPlanSchema = z.object({
   crisisLineConsent: z.boolean().default(true),
 });
 
+// Explicit, per-request consent is required to transmit PHI to the VA Lighthouse API.
+export const syncSafetyPlanToVASchema = z.object({
+  vaPatientId: z.string().min(1, 'VA patient identifier (ICN) is required'),
+  consent: z.boolean().refine((v) => v === true, {
+    message: 'Explicit consent is required to sync data to the VA',
+  }),
+});
+
 // ─── API Response Types (not Zod, just TypeScript) ──────────────────────────
 
 export interface PaginatedResponse<T> {

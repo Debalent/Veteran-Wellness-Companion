@@ -27,6 +27,13 @@ const envSchema = z.object({
   // Bcrypt
   BCRYPT_SALT_ROUNDS: z.coerce.number().min(10).max(15).default(12),
 
+  // Field-level encryption (AES-256-GCM) for PHI/PII at rest, e.g. Safety Plan contents.
+  // Must be a 64-character hex string (32 bytes). Generate with:
+  //   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+  ENCRYPTION_KEY: z
+    .string()
+    .regex(/^[0-9a-fA-F]{64}$/, 'ENCRYPTION_KEY must be a 64-character hex string (32 bytes)'),
+
   // Rate Limiting
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000), // 15 minutes
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100),
@@ -37,6 +44,12 @@ const envSchema = z.object({
   // Crisis Resources
   VETERANS_CRISIS_LINE: z.string().default('988'),
   CRISIS_TEXT_LINE: z.string().default('838255'),
+
+  // VA Lighthouse API (HL7 FHIR) — optional until the integration is enabled.
+  LIGHTHOUSE_API_BASE_URL: z.string().url().optional(),
+  LIGHTHOUSE_TOKEN_URL: z.string().url().optional(),
+  LIGHTHOUSE_CLIENT_ID: z.string().optional(),
+  LIGHTHOUSE_CLIENT_SECRET: z.string().optional(),
 });
 
 /**

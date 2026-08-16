@@ -10,7 +10,7 @@ import { Router } from 'express';
 import * as safetyPlanController from '../controllers/safetyPlan.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
 import { validate } from '../middleware/validate.middleware.js';
-import { createSafetyPlanSchema } from '../types/requests.js';
+import { createSafetyPlanSchema, syncSafetyPlanToVASchema } from '../types/requests.js';
 
 const router = Router();
 
@@ -19,5 +19,6 @@ router.use(authenticate);
 router.put('/', validate(createSafetyPlanSchema, 'body'), safetyPlanController.upsert);
 router.get('/', safetyPlanController.get);
 router.delete('/', safetyPlanController.deactivate);
+router.post('/sync-to-va', validate(syncSafetyPlanToVASchema, 'body'), safetyPlanController.syncToVA);
 
 export default router;
