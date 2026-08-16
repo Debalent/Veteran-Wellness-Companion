@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/branding/main-logo-lockup.png" alt="Veteran Wellness Companion" width="320">
+</p>
+
 # Veteran Wellness Companion Platform
 
 > A secure digital wellness application designed to help veterans improve overall well-being through education, self-monitoring, healthy habit building, and connection to trusted human support.
@@ -5,6 +9,10 @@
 **The Veteran Wellness Companion does not diagnose, treat, or predict suicide risk. It supports — not replaces — licensed mental health professionals and crisis services.**
 
 ---
+
+<p align="center">
+  <img src="assets/branding/journey-matters-banner.png" alt="Every veteran's journey matters" width="100%">
+</p>
 
 ## Mission & Purpose
 

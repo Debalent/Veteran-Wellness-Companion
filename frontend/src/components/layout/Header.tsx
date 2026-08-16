@@ -73,7 +73,11 @@ export default function Header() {
   return (
     <header className="header">
       <div className="header__brand">
-        <h1 className="header__title">Veteran Wellness Companion</h1>
+        <img
+          src="/branding/horizontal-logo-lockup.png"
+          alt="Veteran Wellness Companion"
+          className="header__logo"
+        />
       </div>
       <div className="header__user">
         <button

@@ -68,3 +68,17 @@ h3 { font-size: var(--font-size-lg); }
   white-space: nowrap;
   border-width: 0;
 }
+
+/* Branding */
+.header__logo {
+  height: 36px;
+  width: auto;
+}
+
+.auth-card__logo {
+  display: block;
+  max-width: 240px;
+  width: 100%;
+  height: auto;
+  margin: 0 auto var(--space-md);
+}

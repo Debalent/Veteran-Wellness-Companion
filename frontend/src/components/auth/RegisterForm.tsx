@@ -29,6 +29,11 @@ export default function RegisterForm() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <img
+          src="/branding/main-logo-lockup.png"
+          alt="Veteran Wellness Companion"
+          className="auth-card__logo"
+        />
         <h1 className="auth-card__title">Create Your Account</h1>
         <p className="auth-card__subtitle">Join the Veteran Wellness Companion</p>
 

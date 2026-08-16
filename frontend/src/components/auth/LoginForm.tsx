@@ -28,7 +28,11 @@ export default function LoginForm() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1 className="auth-card__title">Veteran Wellness Companion</h1>
+        <img
+          src="/branding/main-logo-lockup.png"
+          alt="Veteran Wellness Companion"
+          className="auth-card__logo"
+        />
         <p className="auth-card__subtitle">Sign in to your account</p>
 
         {error && <div className="auth-card__error">{error}</div>}
