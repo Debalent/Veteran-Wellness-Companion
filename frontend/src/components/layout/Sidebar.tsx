@@ -15,6 +15,7 @@ const navItems = [
   { to: '/reminders', label: 'Reminders', icon: '⏰' },
   { to: '/education', label: 'Education', icon: '📚' },
   { to: '/resources', label: 'Resources', icon: '📖' },
+  { to: '/my-trips', label: 'My Trips', icon: '🚌' },
 ];
 
 export default function Sidebar() {

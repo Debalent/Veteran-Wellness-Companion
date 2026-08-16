@@ -9,6 +9,7 @@
 
 import { useState, FormEvent, useEffect } from 'react';
 import api from '@services/api';
+import ReadAloudButton from '@components/common/ReadAloudButton';
 
 interface SafetyPlanData {
   warningSigns: string[];
@@ -200,6 +201,10 @@ export default function SafetyPlanBuilder() {
         If you are in crisis, call the Veterans Crisis Line at{' '}
         <strong>988 (Press 1)</strong>.
       </p>
+      <ReadAloudButton
+        text="This is a personal safety planning tool. It is not a clinical assessment. If you are in crisis, call the Veterans Crisis Line at 988, then press 1."
+        label="the safety plan disclaimer"
+      />
 
       <form onSubmit={handleSubmit} className="safety-plan__form">
         <div className="safety-plan__section">

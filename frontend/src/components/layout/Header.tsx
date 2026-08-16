@@ -18,6 +18,7 @@ export default function Header() {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const [isHighContrast, setIsHighContrast] = useState(false);
+  const [isLargeText, setIsLargeText] = useState(false);
 
   /**
    * Initialize high-contrast mode from localStorage on mount.
@@ -27,6 +28,17 @@ export default function Header() {
     setIsHighContrast(saved);
     if (saved) {
       document.documentElement.setAttribute('data-theme', 'high-contrast');
+    }
+  }, []);
+
+  /**
+   * Initialize large-text mode from localStorage on mount.
+   */
+  useEffect(() => {
+    const saved = localStorage.getItem('large_text') === 'true';
+    setIsLargeText(saved);
+    if (saved) {
+      document.documentElement.setAttribute('data-text-size', 'large');
     }
   }, []);
 
@@ -44,6 +56,20 @@ export default function Header() {
     }
   };
 
+  /**
+   * Toggle large-text mode and persist the preference.
+   */
+  const toggleLargeText = () => {
+    const next = !isLargeText;
+    setIsLargeText(next);
+    localStorage.setItem('large_text', String(next));
+    if (next) {
+      document.documentElement.setAttribute('data-text-size', 'large');
+    } else {
+      document.documentElement.removeAttribute('data-text-size');
+    }
+  };
+
   return (
     <header className="header">
       <div className="header__brand">
@@ -58,6 +84,15 @@ export default function Header() {
           title="Toggle high contrast mode"
         >
           {isHighContrast ? '◐ High Contrast On' : '◑ High Contrast Off'}
+        </button>
+        <button
+          onClick={toggleLargeText}
+          className="header__accessibility"
+          aria-pressed={isLargeText}
+          aria-label="Toggle large text mode"
+          title="Toggle large text mode"
+        >
+          {isLargeText ? 'A+ Large Text On' : 'A+ Large Text Off'}
         </button>
         <span className="header__name">{user?.displayName}</span>
         <button onClick={logout} className="header__logout">

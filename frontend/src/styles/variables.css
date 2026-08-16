@@ -90,3 +90,18 @@
 [data-theme="high-contrast"] input {
   border: 2px solid #000000;
 }
+
+/* =============================================================================
+   Large Text Mode
+   =============================================================================
+   Activated via data-text-size="large" on the root element. Scales up base
+   font sizes for veterans with low vision, per accessibility pilot guidance.
+   ============================================================================= */
+
+[data-text-size="large"] {
+  --font-size-sm: 1.0625rem;
+  --font-size-base: 1.25rem;
+  --font-size-lg: 1.5rem;
+  --font-size-xl: 1.875rem;
+  --font-size-2xl: 2.5rem;
+}

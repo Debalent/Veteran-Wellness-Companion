@@ -44,6 +44,7 @@ model User {
   safetyPlans     SafetyPlan[]
   completedLessons CompletedLesson[]
   progressLogs    ProgressLog[]
+  savedTrips      SavedTrip[]
 }
 
 enum Role {
@@ -222,6 +223,33 @@ model SafetyPlan {
   user User @relation(fields: [userId], references: [id])
 
   @@map("safety_plans")
+}
+
+// =============================================================================
+// SAVED TRIP — Lightweight accessible trip assistance ("My Trips")
+// =============================================================================
+// A minimal, self-contained mobility feature: saved destinations and a
+// "Get Me Home" shortcut for independent travel. Deliberately scoped down —
+// no driver matching, dispatch, or payments (see CarePath integration notes).
+// Location fields are treated as sensitive (can reveal clinic/provider
+// visits) and are encrypted at rest, consistent with Safety Plan handling.
+// =============================================================================
+model SavedTrip {
+  id                    String    @id @default(uuid())
+  userId                String
+  label                 String    // e.g. "Home", "VA Appointment", "Grocery Store"
+  origin                String    // encrypted at rest
+  destination           String    // encrypted at rest
+  notes                 String?   // encrypted at rest — accessibility/transit notes
+  isHome                Boolean   @default(false) // powers the "Get Me Home" shortcut
+  needsAssistance        Boolean   @default(false)
+  assistanceRequestedAt DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("saved_trips")
 }
 
 // =============================================================================

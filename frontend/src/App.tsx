@@ -18,6 +18,7 @@ import SafetyPlanBuilder from '@components/safety-planning/SafetyPlanBuilder';
 import RemindersPage from '@components/reminders/RemindersPage';
 import EducationPage from '@components/education/EducationPage';
 import ResourcesPage from '@components/resources/ResourcesPage';
+import MyTripsPage from '@components/mobility/MyTripsPage';
 
 /**
  * ProtectedRoute wrapper — redirects unauthenticated users to login.
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="reminders" element={<RemindersPage />} />
         <Route path="education" element={<EducationPage />} />
         <Route path="resources" element={<ResourcesPage />} />
+        <Route path="my-trips" element={<MyTripsPage />} />
       </Route>
     </Routes>
   );

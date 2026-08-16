@@ -106,6 +106,18 @@ export const syncSafetyPlanToVASchema = z.object({
   }),
 });
 
+// ─── Trip Assistance ("My Trips") ───────────────────────────────────────────
+
+export const createSavedTripSchema = z.object({
+  label: z.string().min(1, 'A trip label is required').max(100),
+  origin: z.string().min(1, 'Origin is required').max(300),
+  destination: z.string().min(1, 'Destination is required').max(300),
+  notes: z.string().max(1000).optional(),
+  isHome: z.boolean().default(false),
+});
+
+export const updateSavedTripSchema = createSavedTripSchema.partial();
+
 // ─── API Response Types (not Zod, just TypeScript) ──────────────────────────
 
 export interface PaginatedResponse<T> {

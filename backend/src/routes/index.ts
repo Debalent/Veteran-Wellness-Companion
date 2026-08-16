@@ -13,6 +13,7 @@ import reminderRoutes from './reminders.routes.js';
 import safetyPlanRoutes from './safetyPlans.routes.js';
 import educationRoutes from './education.routes.js';
 import resourceRoutes from './resources.routes.js';
+import tripAssistanceRoutes from './tripAssistance.routes.js';
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use('/reminders', reminderRoutes);
 router.use('/safety-plans', safetyPlanRoutes);
 router.use('/education', educationRoutes);
 router.use('/resources', resourceRoutes);
+router.use('/trip-assistance', tripAssistanceRoutes);
 
 export default router;
