@@ -47,6 +47,11 @@ export default function SafetyPlanBuilder() {
   const [isOffline, setIsOffline] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [vaPatientId, setVaPatientId] = useState('');
+  const [vaConsent, setVaConsent] = useState(false);
+  const [isSyncingToVA, setIsSyncingToVA] = useState(false);
+  const [vaSyncMessage, setVaSyncMessage] = useState('');
+
   /**
    * Load the cached plan from localStorage on mount.
    * This ensures the safety plan is always viewable, even offline.
@@ -154,6 +159,28 @@ export default function SafetyPlanBuilder() {
     }
   };
 
+  /**
+   * Sync the saved safety plan to the veteran's VA health record (FHIR CarePlan).
+   * Requires explicit, per-request consent — this is a distinct PHI data flow
+   * to an external system and is never triggered implicitly.
+   */
+  const handleSyncToVA = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsSyncingToVA(true);
+    setVaSyncMessage('');
+
+    try {
+      await api.post('/safety-plans/sync-to-va', { vaPatientId, consent: vaConsent });
+      setVaSyncMessage('Your safety plan was synced to your VA record.');
+    } catch (err: any) {
+      setVaSyncMessage(
+        err?.response?.data?.message || 'Failed to sync to your VA record. Please try again.'
+      );
+    } finally {
+      setIsSyncingToVA(false);
+    }
+  };
+
   if (isLoading) {
     return <div className="safety-plan__loading">Loading your safety plan...</div>;
   }
@@ -255,6 +282,38 @@ export default function SafetyPlanBuilder() {
 
         {message && <p className="safety-plan__message">{message}</p>}
       </form>
+
+      <div className="safety-plan__va-sync">
+        <h3>Sync to VA Record</h3>
+        <p>
+          Optionally share this safety plan with your VA care team by sending it to
+          your VA health record. This requires your explicit consent each time.
+        </p>
+        <form onSubmit={handleSyncToVA} className="safety-plan__va-sync-form">
+          <label htmlFor="va-patient-id">VA Patient ID (ICN)</label>
+          <input
+            id="va-patient-id"
+            type="text"
+            value={vaPatientId}
+            onChange={(e) => setVaPatientId(e.target.value)}
+            placeholder="e.g., 1234567890V123456"
+            required
+          />
+          <label className="safety-plan__consent-label">
+            <input
+              type="checkbox"
+              checked={vaConsent}
+              onChange={(e) => setVaConsent(e.target.checked)}
+              required
+            />
+            I consent to sending my safety plan to my VA health record.
+          </label>
+          <button type="submit" disabled={isSyncingToVA || !vaConsent || !vaPatientId}>
+            {isSyncingToVA ? 'Syncing...' : 'Sync to VA Record'}
+          </button>
+          {vaSyncMessage && <p className="safety-plan__message">{vaSyncMessage}</p>}
+        </form>
+      </div>
 
       <div className="safety-plan__crisis">
         <h3>24/7 Crisis Support</h3>
