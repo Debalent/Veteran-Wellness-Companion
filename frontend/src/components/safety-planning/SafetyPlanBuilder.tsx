@@ -1,3 +1,5 @@
+import { useState, FormEvent, useEffect } from 'react';
+
 // =============================================================================
 // Safety Plan Builder
 // =============================================================================
@@ -6,8 +8,6 @@
 // This is a self-directed tool — not a clinical assessment.
 // Crisis line access is always prominently displayed.
 // =============================================================================
-
-import { useState, FormEvent, useEffect } from 'react';
 import api from '@services/api';
 import ReadAloudButton from '@components/common/ReadAloudButton';
 

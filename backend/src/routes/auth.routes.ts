@@ -1,11 +1,11 @@
+import { Router } from 'express';
+
 // =============================================================================
 // Authentication Routes
 // =============================================================================
 // Defines API endpoints for user registration, login, and profile.
 // Auth routes are publicly accessible (no JWT required for register/login).
 // =============================================================================
-
-import { Router } from 'express';
 import * as authController from '../controllers/auth.controller.js';
 import { validate } from '../middleware/validate.middleware.js';
 import { authLimiter } from '../middleware/rateLimiter.middleware.js';
