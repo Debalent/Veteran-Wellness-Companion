@@ -1,4 +1,9 @@
 import { Router } from 'express';
+import * as authController from '../controllers/auth.controller.js';
+import { validate } from '../middleware/validate.middleware.js';
+import { authLimiter } from '../middleware/rateLimiter.middleware.js';
+import { authenticate } from '../middleware/auth.middleware.js';
+import { registerSchema, loginSchema } from '../types/requests.js';
 
 // =============================================================================
 // Authentication Routes
@@ -6,11 +11,6 @@ import { Router } from 'express';
 // Defines API endpoints for user registration, login, and profile.
 // Auth routes are publicly accessible (no JWT required for register/login).
 // =============================================================================
-import * as authController from '../controllers/auth.controller.js';
-import { validate } from '../middleware/validate.middleware.js';
-import { authLimiter } from '../middleware/rateLimiter.middleware.js';
-import { authenticate } from '../middleware/auth.middleware.js';
-import { registerSchema, loginSchema } from '../types/requests.js';
 
 const router = Router();
 
